@@ -3,7 +3,11 @@ import "./pages/index.css";
 import { initialCards } from "./components/cards.js";
 
 import { createCard, deleteCard, toggleLike } from "./components/card.js";
-import { openPopup, closePopup } from "./components/modal.js";
+import {
+  openPopup,
+  closePopup,
+  handleOverlayClick,
+} from "./components/modal.js";
 
 // ------------------------------------------------------
 // --------------------- DOM узлы -----------------------
@@ -12,10 +16,15 @@ import { openPopup, closePopup } from "./components/modal.js";
 // Контейнер для вставки карточек
 const placesList = document.querySelector(".places__list");
 
-// Попапы
+// Попапы и их элементы
 const popupEditProfile = document.querySelector(".popup_type_edit");
 const popupAddCard = document.querySelector(".popup_type_new-card");
 const popupImage = document.querySelector(".popup_type_image");
+
+const popups = [popupEditProfile, popupAddCard, popupImage]; // || document.querySelectorAll('.popup')
+
+const popupImageElement = popupImage.querySelector(".popup__image"); // Изображение <img> внутри попапа
+const popupCaptionElement = popupImage.querySelector(".popup__caption");
 
 // Кнопки попапов
 const buttonEditProfile = document.querySelector(".profile__edit-button");
@@ -78,7 +87,6 @@ const handleAddCardFormSubmit = (evt) => {
 
   // 3. Закрываем попап и сбрасываем форму
   closePopup(popupAddCard);
-  formAddCard.reset();
 };
 
 // ------------------------------------------------------
@@ -87,9 +95,6 @@ const handleAddCardFormSubmit = (evt) => {
 
 // Функция для открытия попапа с изображением
 const openImagePopup = (cardContent) => {
-  const popupImageElement = popupImage.querySelector(".popup__image");
-  const popupCaptionElement = popupImage.querySelector(".popup__caption");
-
   popupImageElement.src = cardContent.src;
   popupImageElement.alt = cardContent.alt;
   popupCaptionElement.textContent = cardContent.caption;
@@ -123,7 +128,7 @@ const renderCards = (cards) => {
 formEditProfile.addEventListener("submit", handleProfileFormSubmit);
 formAddCard.addEventListener("submit", handleAddCardFormSubmit);
 
-// Открыть попап редактирования профиля
+// Обработчик кнопки редактирования профиля
 buttonEditProfile.addEventListener("click", () => {
   nameInput.value = profileName.textContent;
   descriptionInput.value = profileDescription.textContent;
@@ -131,11 +136,22 @@ buttonEditProfile.addEventListener("click", () => {
   openPopup(popupEditProfile);
 });
 
-// Открыть попап добавления карточки
+// Обработчик кнопки добавления карточки
 buttonAddCard.addEventListener("click", () => {
   formAddCard.reset();
 
   openPopup(popupAddCard);
+});
+
+// Обработчики событий попапов
+popups.forEach((popupElement) => {
+  const closeButton = popupElement.querySelector(".popup__close");
+
+  if (closeButton) {
+    closeButton.addEventListener("click", () => closePopup(popupElement));
+  }
+
+  popupElement.addEventListener("mousedown", handleOverlayClick);
 });
 
 // Вывод начальных карточек
