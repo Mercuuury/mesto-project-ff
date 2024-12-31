@@ -16,6 +16,7 @@ import {
   getCards,
   createCardOnServer,
   patchUser,
+  patchUserAvatar,
 } from "./components/api.js";
 
 let userId = null; // Идентификатор пользователя
@@ -44,15 +45,17 @@ const placesList = document.querySelector(".places__list");
 const popupEditProfile = document.querySelector(".popup_type_edit");
 const popupAddCard = document.querySelector(".popup_type_new-card");
 const popupImage = document.querySelector(".popup_type_image");
+const popupEditAvatar = document.querySelector(".popup_type_avatar");
 
-const popups = [popupEditProfile, popupAddCard, popupImage]; // || document.querySelectorAll('.popup')
+const popups = [popupEditProfile, popupAddCard, popupImage, popupEditAvatar]; // || document.querySelectorAll('.popup')
 
 const popupImageElement = popupImage.querySelector(".popup__image"); // Изображение <img> внутри попапа
 const popupCaptionElement = popupImage.querySelector(".popup__caption");
 
-// Кнопки попапов
+// Кнопки для вызова попапов
 const buttonEditProfile = document.querySelector(".profile__edit-button");
 const buttonAddCard = document.querySelector(".profile__add-button");
+const buttonEditAvatar = document.querySelector(".profile__image");
 
 // Форма редактирования профиля
 const formEditProfile = popupEditProfile.querySelector(
@@ -74,6 +77,12 @@ const formAddCard = popupAddCard.querySelector(
 );
 const cardNameInput = formAddCard.querySelector(".popup__input_type_card-name");
 const cardLinkInput = formAddCard.querySelector(".popup__input_type_url");
+
+// Форма редактирования аватара
+const formEditAvatar = popupEditAvatar.querySelector(
+  '.popup__form[name="edit-avatar"]'
+);
+const avatarLinkInput = formEditAvatar.querySelector(".popup__input_type_url");
 
 // ------------------------------------------------------
 // ------------ Функции для работы с формами ------------
@@ -134,6 +143,27 @@ const handleAddCardFormSubmit = (evt) => {
     });
 };
 
+// Отправка формы редактирования аватара
+const handleAvatarFormSubmit = (evt) => {
+  evt.preventDefault();
+  setFormButtonLoader(popupEditAvatar, true);
+
+  // 1. Отправляем запрос на обновление профиля
+  patchUserAvatar({
+    avatar: avatarLinkInput.value,
+  })
+    .then((avatar) => {
+      // 2. Обновляем URL аватара на странице
+      profileAvatar.style.backgroundImage = `url(${avatar.avatar})`;
+    })
+    .catch((err) => console.log(`Не удалось обновить аватар. ${err}`))
+    .finally(() => {
+      // 3. Закрываем попап и сбрасываем форму
+      setFormButtonLoader(popupEditAvatar, false);
+      closePopup(popupEditAvatar);
+    });
+};
+
 // ------------------------------------------------------
 // ------------------- Прочие функции  ------------------
 // ------------------------------------------------------
@@ -183,7 +213,7 @@ const setFormButtonLoader = (formElement, isLoading) => {
 // Добавление обработчиков форм
 formEditProfile.addEventListener("submit", handleProfileFormSubmit);
 formAddCard.addEventListener("submit", handleAddCardFormSubmit);
-// TODO: обработчик формы обновления аватара
+formEditAvatar.addEventListener("submit", handleAvatarFormSubmit);
 
 // Обработчик кнопки редактирования профиля
 buttonEditProfile.addEventListener("click", () => {
@@ -200,6 +230,14 @@ buttonAddCard.addEventListener("click", () => {
 
   clearValidation(formAddCard, validationConfig);
   openPopup(popupAddCard);
+});
+
+// Обработчик кнопки редактирования аватара
+buttonEditAvatar.addEventListener("click", () => {
+  formEditAvatar.reset();
+
+  clearValidation(formEditAvatar, validationConfig);
+  openPopup(popupEditAvatar);
 });
 
 // Обработчики событий попапов

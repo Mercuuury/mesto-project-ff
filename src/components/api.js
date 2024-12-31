@@ -30,11 +30,11 @@ export const patchUser = (userData) => {
 };
 
 // Функция для обновления аватара пользователя
-export const patchUserAvatar = (avatar) => {
+export const patchUserAvatar = (avatarData) => {
   return fetch(`${apiConfig.baseUrl}/users/me/avatar`, {
     method: "PATCH",
     headers: apiConfig.headers,
-    body: JSON.stringify(avatar),
+    body: JSON.stringify(avatarData),
   }).then(processResponse);
 };
 

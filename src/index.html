@@ -24,7 +24,13 @@
           <div
             class="profile__image"
             style="background-image: url(<%=require('./images/avatar.jpg')%>)"
-          ></div>
+          >
+            <img
+              class="profile__image_edit"
+              src="<%=require('./images/edit-icon.svg')%>"
+              alt="Редактировать аватар профиля"
+            />
+          </div>
           <div class="profile__info">
             <h1 class="profile__title">Жак-Ив Кусто</h1>
             <button class="profile__edit-button" type="button"></button>
@@ -121,6 +127,28 @@
           <button type="button" class="popup__close"></button>
           <img src="" alt="" class="popup__image" />
           <p class="popup__caption"></p>
+        </div>
+      </div>
+
+      <div class="popup popup_type_avatar popup_is-animated">
+        <div class="popup__content">
+          <button type="button" class="popup__close"></button>
+          <h3 class="popup__title">Обновить аватар</h3>
+          <form class="popup__form" name="edit-avatar">
+            <input
+              id="avatar-link"
+              type="url"
+              name="avatar-link"
+              class="popup__input popup__input_type_url"
+              placeholder="Ссылка на картинку"
+              required
+            />
+            <span class="popup__input-error avatar-link-error"></span>
+
+            <button type="submit" class="button popup__button">
+              Сохранить
+            </button>
+          </form>
         </div>
       </div>
     </div>

@@ -1,0 +1,12 @@
+.profile__image_edit {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 2;
+  display: hidden;
+  width: 26px;
+  height: 26px;
+  opacity: 0;
+  transition: opacity 0.3s;
+  transform: translate(-50%, -50%);
+}
