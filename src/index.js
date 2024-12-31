@@ -1,14 +1,19 @@
 import "./pages/index.css";
 
-import { initialCards } from "./components/cards.js";
-
+// Функции для работы с карточками
 import { createCard, deleteCard, toggleLike } from "./components/card.js";
+// Функции для работы с попапами (модальными окнами)
 import {
   openPopup,
   closePopup,
   handleOverlayClick,
 } from "./components/modal.js";
+// Функции для работы с валидацией форм
 import { clearValidation, enableValidation } from "./components/validation.js";
+// Функции для работы с API
+import { getUser, getCards, createCardOnServer } from "./components/api.js";
+
+let userId = null; // Идентификатор пользователя
 
 // ------------------------------------------------------
 // ------------------- Конфигурация ---------------------
@@ -56,6 +61,7 @@ const descriptionInput = formEditProfile.querySelector(
 // Данные профиля
 const profileName = document.querySelector(".profile__title");
 const profileDescription = document.querySelector(".profile__description");
+const profileAvatar = document.querySelector(".profile__image");
 
 // Форма для добавления новых карточек
 const formAddCard = popupAddCard.querySelector(
@@ -82,25 +88,35 @@ const handleProfileFormSubmit = (evt) => {
 // Отправка формы добавления карточки
 const handleAddCardFormSubmit = (evt) => {
   evt.preventDefault();
+  setFormButtonLoader(popupAddCard, true);
 
-  // 1. Создаем новую карточку
-  const newCard = createCard(
-    {
-      name: cardNameInput.value,
-      link: cardLinkInput.value,
-    },
-    {
-      onDelete: deleteCard,
-      onLike: toggleLike,
-      onImageClick: openImagePopup,
-    }
-  );
-
-  // 2. Добавляем карточку в начало списка
-  placesList.prepend(newCard);
-
-  // 3. Закрываем попап и сбрасываем форму
-  closePopup(popupAddCard);
+  // 1. Отправляем запрос для создания карточки на сервере
+  createCardOnServer({
+    name: cardNameInput.value,
+    link: cardLinkInput.value,
+  })
+    .then((card) => {
+      // 2. Создаем карточку из темплейта
+      const newCard = createCard(
+        card,
+        {
+          onDelete: deleteCard,
+          onLike: toggleLike,
+          onImageClick: openImagePopup,
+        },
+        userId
+      );
+      // 3. Добавляем карточку в начало списка
+      placesList.prepend(newCard);
+      // 4. Закрываем попап и сбрасываем форму
+      closePopup(popupAddCard);
+    })
+    .catch((err) =>
+      console.error(`При добавлении карточки произошла ошибка: ${err}`)
+    )
+    .finally(() => {
+      setFormButtonLoader(popupAddCard, false);
+    });
 };
 
 // ------------------------------------------------------
@@ -120,18 +136,29 @@ const openImagePopup = (cardContent) => {
 const renderCards = (cards) => {
   cards.forEach((card) => {
     const newCard = createCard(
-      {
-        name: card.name,
-        link: card.link,
-      },
+      card,
       {
         onDelete: deleteCard,
         onLike: toggleLike,
         onImageClick: openImagePopup,
-      }
+      },
+      userId
     );
     placesList.append(newCard);
   });
+};
+
+// Функция для смены индикатора загрузки на кнопке
+const setFormButtonLoader = (formElement, isLoading) => {
+  const buttonElement = formElement.querySelector(".popup__button");
+
+  if (isLoading) {
+    buttonElement.dataset.originalText = buttonElement.textContent;
+    buttonElement.textContent = "Сохранение...";
+  } else {
+    buttonElement.textContent = buttonElement.dataset.originalText;
+    delete buttonElement.dataset.originalText;
+  }
 };
 
 // ------------------------------------------------------
@@ -141,6 +168,7 @@ const renderCards = (cards) => {
 // Добавление обработчиков форм
 formEditProfile.addEventListener("submit", handleProfileFormSubmit);
 formAddCard.addEventListener("submit", handleAddCardFormSubmit);
+// TODO: обработчик формы обновления аватара
 
 // Обработчик кнопки редактирования профиля
 buttonEditProfile.addEventListener("click", () => {
@@ -170,8 +198,21 @@ popups.forEach((popupElement) => {
   popupElement.addEventListener("mousedown", handleOverlayClick);
 });
 
-// Вывод начальных карточек
-renderCards(initialCards);
+// Загрузка изначальных данных
+Promise.all([getUser(), getCards()])
+  .then(([userData, initialCards]) => {
+    // Сохранение идентификатора пользователя
+    userId = userData._id;
+
+    // Обновление данных профиля
+    profileName.textContent = userData.name;
+    profileDescription.textContent = userData.about;
+    profileAvatar.style.backgroundImage = `url(${userData.avatar})`;
+
+    // Вывод начальных карточек
+    renderCards(initialCards);
+  })
+  .catch((err) => console.log(`Произошла ошибка: ${err}`));
 
 // Включение валидации форм
 enableValidation(validationConfig);
