@@ -11,7 +11,12 @@ import {
 // Функции для работы с валидацией форм
 import { clearValidation, enableValidation } from "./components/validation.js";
 // Функции для работы с API
-import { getUser, getCards, createCardOnServer } from "./components/api.js";
+import {
+  getUser,
+  getCards,
+  createCardOnServer,
+  patchUser,
+} from "./components/api.js";
 
 let userId = null; // Идентификатор пользователя
 
@@ -77,12 +82,24 @@ const cardLinkInput = formAddCard.querySelector(".popup__input_type_url");
 // Отправка формы редактирования профиля
 const handleProfileFormSubmit = (evt) => {
   evt.preventDefault();
+  setFormButtonLoader(popupEditProfile, true);
 
-  // Обновляем значения элементов на странице
-  profileName.textContent = nameInput.value;
-  profileDescription.textContent = descriptionInput.value;
-
-  closePopup(popupEditProfile);
+  // 1. Отправляем запрос на обновление профиля
+  patchUser({
+    name: nameInput.value,
+    about: descriptionInput.value,
+  })
+    .then((userData) => {
+      // 2. Обновляем значения элементов на странице
+      profileName.textContent = userData.name;
+      profileDescription.textContent = userData.about;
+    })
+    .catch((err) => console.log(`Не удалось обновить профиль. ${err}`))
+    .finally(() => {
+      // 3. Закрываем попап и сбрасываем форму
+      setFormButtonLoader(popupEditProfile, false);
+      closePopup(popupEditProfile);
+    });
 };
 
 // Отправка формы добавления карточки
@@ -108,12 +125,12 @@ const handleAddCardFormSubmit = (evt) => {
       );
       // 3. Добавляем карточку в начало списка
       placesList.prepend(newCard);
-      // 4. Закрываем попап и сбрасываем форму
-      closePopup(popupAddCard);
     })
     .catch((err) => console.error(`Не удалось добавить карточку. ${err}`))
     .finally(() => {
+      // 4. Закрываем попап и сбрасываем форму
       setFormButtonLoader(popupAddCard, false);
+      closePopup(popupAddCard);
     });
 };
 
