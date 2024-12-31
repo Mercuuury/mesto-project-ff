@@ -111,9 +111,7 @@ const handleAddCardFormSubmit = (evt) => {
       // 4. Закрываем попап и сбрасываем форму
       closePopup(popupAddCard);
     })
-    .catch((err) =>
-      console.error(`При добавлении карточки произошла ошибка: ${err}`)
-    )
+    .catch((err) => console.error(`Не удалось добавить карточку. ${err}`))
     .finally(() => {
       setFormButtonLoader(popupAddCard, false);
     });
@@ -212,7 +210,7 @@ Promise.all([getUser(), getCards()])
     // Вывод начальных карточек
     renderCards(initialCards);
   })
-  .catch((err) => console.log(`Произошла ошибка: ${err}`));
+  .catch((err) => console.log(`Не удалось обновить данные с сервера. ${err}`));
 
 // Включение валидации форм
 enableValidation(validationConfig);

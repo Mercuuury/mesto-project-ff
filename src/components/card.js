@@ -62,7 +62,7 @@ export const deleteCard = (cardElement, cardId) => {
   deleteCardFromServer(cardId)
     .then(() => cardElement.remove())
     .catch((err) =>
-      console.log(`При удалении карточки ${cardId} возникла ошибка: ${err}`)
+      console.log(`Не удалось удалить карточку ${cardId}. ${err}`)
     );
 };
 
@@ -79,7 +79,7 @@ export const toggleLike = (likeButtonElement, likeCounterElement, cardId) => {
     })
     .catch((err) =>
       console.log(
-        `При переключении лайка карточки ${cardId} возникла ошибка: ${err}`
+        `Не удалось изменить состояние лайка карточки ${cardId}. ${err}`
       )
     );
 };

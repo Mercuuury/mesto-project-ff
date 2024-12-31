@@ -8,7 +8,9 @@ const apiConfig = {
 
 // Функция для обработки ответа API
 const processResponse = (res) => {
-  return res.ok ? res.json() : Promise.reject(`Ошибка: ${res.status}`);
+  return res.ok
+    ? res.json()
+    : Promise.reject(`При выполнении запроса произошла ошибка: ${res.status}`);
 };
 
 // Функция для получения информации об авторизованном пользователе
