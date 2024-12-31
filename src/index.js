@@ -8,6 +8,20 @@ import {
   closePopup,
   handleOverlayClick,
 } from "./components/modal.js";
+import { clearValidation, enableValidation } from "./components/validation.js";
+
+// ------------------------------------------------------
+// ------------------- Конфигурация ---------------------
+// ------------------------------------------------------
+
+const validationConfig = {
+  formSelector: ".popup__form",
+  inputSelector: ".popup__input",
+  submitButtonSelector: ".popup__button",
+  inactiveButtonClass: "popup__button_disabled",
+  inputErrorClass: "popup__input_type_error",
+  errorClass: "popup__input-error_active",
+};
 
 // ------------------------------------------------------
 // --------------------- DOM узлы -----------------------
@@ -133,6 +147,7 @@ buttonEditProfile.addEventListener("click", () => {
   nameInput.value = profileName.textContent;
   descriptionInput.value = profileDescription.textContent;
 
+  clearValidation(formEditProfile, validationConfig);
   openPopup(popupEditProfile);
 });
 
@@ -140,6 +155,7 @@ buttonEditProfile.addEventListener("click", () => {
 buttonAddCard.addEventListener("click", () => {
   formAddCard.reset();
 
+  clearValidation(formAddCard, validationConfig);
   openPopup(popupAddCard);
 });
 
@@ -156,3 +172,6 @@ popups.forEach((popupElement) => {
 
 // Вывод начальных карточек
 renderCards(initialCards);
+
+// Включение валидации форм
+enableValidation(validationConfig);
