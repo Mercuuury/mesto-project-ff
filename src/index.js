@@ -20,6 +20,8 @@ import {
 } from "./components/api.js";
 
 let userId = null; // Идентификатор пользователя
+let cardElementToDelete = null; // Карточка, которую собираются удалить
+let cardIdToDelete = null; // ID карточки, которую собираются удалить
 
 // ------------------------------------------------------
 // ------------------- Конфигурация ---------------------
@@ -46,8 +48,15 @@ const popupEditProfile = document.querySelector(".popup_type_edit");
 const popupAddCard = document.querySelector(".popup_type_new-card");
 const popupImage = document.querySelector(".popup_type_image");
 const popupEditAvatar = document.querySelector(".popup_type_avatar");
+const popupConfirm = document.querySelector(".popup_type_confirm");
 
-const popups = [popupEditProfile, popupAddCard, popupImage, popupEditAvatar]; // || document.querySelectorAll('.popup')
+const popups = [
+  popupEditProfile,
+  popupAddCard,
+  popupImage,
+  popupEditAvatar,
+  popupConfirm,
+]; // || document.querySelectorAll('.popup')
 
 const popupImageElement = popupImage.querySelector(".popup__image"); // Изображение <img> внутри попапа
 const popupCaptionElement = popupImage.querySelector(".popup__caption");
@@ -83,6 +92,9 @@ const formEditAvatar = popupEditAvatar.querySelector(
   '.popup__form[name="edit-avatar"]'
 );
 const avatarLinkInput = formEditAvatar.querySelector(".popup__input_type_url");
+
+// Форма подтверждения
+const formConfirm = popupConfirm.querySelector('.popup__form[name="confirm"]');
 
 // ------------------------------------------------------
 // ------------ Функции для работы с формами ------------
@@ -126,7 +138,7 @@ const handleAddCardFormSubmit = (evt) => {
       const newCard = createCard(
         card,
         {
-          onDelete: deleteCard,
+          onDelete: openConfirmPopup,
           onLike: toggleLike,
           onImageClick: openImagePopup,
         },
@@ -164,6 +176,17 @@ const handleAvatarFormSubmit = (evt) => {
     });
 };
 
+// Отправка формы подтверждения удаления карточки
+const handleConfirmFormSubmit = (evt) => {
+  evt.preventDefault();
+
+  deleteCard(cardElementToDelete, cardIdToDelete);
+  closePopup(popupConfirm);
+
+  cardElementToDelete = null;
+  cardIdToDelete = null;
+};
+
 // ------------------------------------------------------
 // ------------------- Прочие функции  ------------------
 // ------------------------------------------------------
@@ -177,13 +200,21 @@ const openImagePopup = (cardContent) => {
   openPopup(popupImage);
 };
 
+// Функция для отрытия попапа подтверждения удаления карточки
+const openConfirmPopup = (cardElement, cardId) => {
+  cardElementToDelete = cardElement;
+  cardIdToDelete = cardId;
+
+  openPopup(popupConfirm);
+};
+
 // Функция для вывода карточек на страницу
 const renderCards = (cards) => {
   cards.forEach((card) => {
     const newCard = createCard(
       card,
       {
-        onDelete: deleteCard,
+        onDelete: openConfirmPopup,
         onLike: toggleLike,
         onImageClick: openImagePopup,
       },
@@ -214,6 +245,7 @@ const setFormButtonLoader = (formElement, isLoading) => {
 formEditProfile.addEventListener("submit", handleProfileFormSubmit);
 formAddCard.addEventListener("submit", handleAddCardFormSubmit);
 formEditAvatar.addEventListener("submit", handleAvatarFormSubmit);
+formConfirm.addEventListener("submit", handleConfirmFormSubmit);
 
 // Обработчик кнопки редактирования профиля
 buttonEditProfile.addEventListener("click", () => {
