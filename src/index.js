@@ -114,12 +114,12 @@ const handleProfileFormSubmit = (evt) => {
       // 2. Обновляем значения элементов на странице
       profileName.textContent = userData.name;
       profileDescription.textContent = userData.about;
+      // 3. Закрываем попап и сбрасываем форму
+      closePopup(popupEditProfile);
     })
     .catch((err) => console.log(`Не удалось обновить профиль. ${err}`))
     .finally(() => {
-      // 3. Закрываем попап и сбрасываем форму
       setFormButtonLoader(popupEditProfile, false);
-      closePopup(popupEditProfile);
     });
 };
 
@@ -146,12 +146,12 @@ const handleAddCardFormSubmit = (evt) => {
       );
       // 3. Добавляем карточку в начало списка
       placesList.prepend(newCard);
+      // 4. Закрываем попап и сбрасываем форму
+      closePopup(popupAddCard);
     })
     .catch((err) => console.error(`Не удалось добавить карточку. ${err}`))
     .finally(() => {
-      // 4. Закрываем попап и сбрасываем форму
       setFormButtonLoader(popupAddCard, false);
-      closePopup(popupAddCard);
     });
 };
 
@@ -167,12 +167,12 @@ const handleAvatarFormSubmit = (evt) => {
     .then((avatar) => {
       // 2. Обновляем URL аватара на странице
       profileAvatar.style.backgroundImage = `url(${avatar.avatar})`;
+      // 3. Закрываем попап и сбрасываем форму
+      closePopup(popupEditAvatar);
     })
     .catch((err) => console.log(`Не удалось обновить аватар. ${err}`))
     .finally(() => {
-      // 3. Закрываем попап и сбрасываем форму
       setFormButtonLoader(popupEditAvatar, false);
-      closePopup(popupEditAvatar);
     });
 };
 
